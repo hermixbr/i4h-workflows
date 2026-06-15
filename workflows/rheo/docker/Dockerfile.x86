@@ -233,7 +233,8 @@ RUN if [ "$INSTALL_GROOT" = "true" ]; then \
 # Set CUDA 12.8 library path permanently for runtime (prepend to existing path)
 ENV LD_LIBRARY_PATH=/usr/local/cuda-12.8/lib64:/usr/local/cuda/lib64:/usr/lib/x86_64-linux-gnu
 
-################################
+
+#################################
 # Install IsaacLab Arena
 ################################
 COPY ./third_party/IsaacLab-Arena ${WORKDIR}/third_party/IsaacLab-Arena
