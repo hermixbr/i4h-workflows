@@ -23,8 +23,6 @@ import tqdm
 from isaaclab_arena.cli.isaaclab_arena_cli import get_isaaclab_arena_cli_parser
 from isaaclab_arena.utils.isaaclab_utils.simulation_app import SimulationAppContext
 from isaaclab_arena_environments.cli import get_arena_builder_from_cli
-from scripts.utils.policy_tasks import create_success_hold_wrapper
-from simulation.examples.policy_runner_cli import create_policy, setup_policy_argument_parser, validate_policy_args
 from simulation.register_and_patch import register_workflow_assets, register_workflow_cli
 
 register_workflow_cli()
@@ -36,9 +34,19 @@ def main():
     # We do this as the parser is shared between the example environment and policy runner
     args_cli, _ = args_parser.parse_known_args()
 
+    if getattr(args_cli, "enable_pinocchio", False):
+        import pinocchio  # noqa: F401
+
     # Start the simulation app
     with SimulationAppContext(args_cli):
-        # Add policy-related arguments to the parser
+        # Lazy imports: policy_runner_cli pulls isaaclab (warp) — must load after Kit starts.
+        from scripts.utils.policy_tasks import create_success_hold_wrapper
+        from simulation.examples.policy_runner_cli import (
+            create_policy,
+            setup_policy_argument_parser,
+            validate_policy_args,
+        )
+
         register_workflow_assets()
         args_parser = setup_policy_argument_parser(args_parser)
         args_cli = args_parser.parse_args()

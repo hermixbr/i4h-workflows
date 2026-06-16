@@ -3,6 +3,11 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# Re-exec with bash when invoked as `sh run_docker.sh` (dash does not support [[ or arrays).
+if [ -z "${BASH_VERSION:-}" ]; then
+    exec bash "$0" "$@"
+fi
+
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -183,6 +188,11 @@ add_volume_if_it_exists() {
     [ -d "$src" ] && echo "-v $src:$dst"
 }
 
+# Lightwheel SDK cache (nested dirs required for version metadata .txt files)
+mkdir -p "$HOME/.cache/lightwheel_sdk/object/CoffeeMachine037"
+mkdir -p "$HOME/.cache/lightwheel_sdk/object/Microwave039"
+mkdir -p "$HOME/.cache/lightwheel_sdk/object"
+
 # Run container
 if [ "$NEW_CONTAINER" = false ] && [ "$( docker container inspect -f '{{.State.Running}}' $CONTAINER_NAME 2>/dev/null)" = "true" ]; then
     if [ $# -ge 1 ]; then
@@ -247,10 +257,20 @@ else
         fi
     fi
 
-    # X11
-    if [ -n "$DISPLAY" ]; then
-        echo "Allowing X11 connections"
-        xhost +local:docker > /dev/null
+    # X11 (optional). Do not abort if xhost fails (SSH/headless); unset DISPLAY so Isaac Sim
+    # runs headless instead of failing on an invalid display.
+    if [ -n "${DISPLAY:-}" ]; then
+        echo "Allowing X11 connections for DISPLAY=${DISPLAY}"
+        if xhost +local:docker > /dev/null 2>&1; then
+            echo "X11 forwarding enabled."
+        else
+            echo "Warning: xhost failed (no X server on ${DISPLAY}). Running headless."
+            echo "         Use --webrtc_cam and open http://localhost:8080 to view the scene."
+            unset DISPLAY
+        fi
+    fi
+    if [ -z "${DISPLAY:-}" ]; then
+        export HEADLESS=1
     fi
 
     if [ $# -ge 1 ]; then

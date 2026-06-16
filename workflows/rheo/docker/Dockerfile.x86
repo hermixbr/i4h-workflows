@@ -25,6 +25,7 @@ ARG WORKDIR="/workspaces"
 ENV WORKDIR=${WORKDIR}
 WORKDIR "${WORKDIR}"
 ENV PYTHONPATH=${WORKDIR}/workflows/rheo:${WORKDIR}/workflows/rheo/scripts:${WORKDIR}/workflows/rheo/scripts/simulation/rl
+ENV HEADLESS=1
 
 USER root
 
@@ -94,11 +95,21 @@ RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --no-build-isolation --prefer
     starlette==0.49.1 \
     "pyglet<2"
 RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --no-build-isolation --prefer-binary "onnx>=1.18.0"
-RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --no-build-isolation --prefer-binary warp-lang
+# Do NOT pip install warp-lang — Isaac Sim 5.1 ships Warp via omni.warp-1.8.2. A newer
+# warp-lang from PyPI shadows the kit copy and breaks wp.types.array / wp.context at startup.
 RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --no-build-isolation --prefer-binary einops
 # isaaclab_mimic runtime deps (install editable packages with --no-deps below)
 RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --no-build-isolation --prefer-binary \
     tomli ipywidgets==8.1.5
+# isaaclab / isaaclab_tasks / isaaclab_rl runtime deps skipped by --no-deps editable installs
+RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --no-build-isolation --prefer-binary \
+    h5py \
+    hydra-core \
+    tensorboard \
+    moviepy \
+    numba \
+    "protobuf>=4.25.8,!=5.26.0" \
+    "packaging<24"
 # transformers omitted here — bulk install segfaults kit Python; GR00T stage installs it when needed.
 # Install Isaac Lab core and extensions with --no-deps (runtime deps pre-installed above).
 RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --no-build-isolation --no-deps -e "${ISAACLAB_PATH}/source/isaaclab" && \
@@ -109,7 +120,7 @@ RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --no-build-isolation --no-dep
     /isaac-sim/python.sh -c "import isaaclab; import isaaclab_mimic; print(isaaclab.__file__)"
 
 # Patch for osqp
-RUN if python -c "import qpsolvers; print(qpsolvers.available_solvers)" | grep -q "osqp"; then \
+RUN if /isaac-sim/python.sh -c "import qpsolvers; print(qpsolvers.available_solvers)" | grep -q "osqp"; then \
         echo "OSQP is installed."; \
     else \
         echo "OSQP missing, installing..."; \
@@ -118,7 +129,7 @@ RUN if python -c "import qpsolvers; print(qpsolvers.available_solvers)" | grep -
 
 # Workflow pip deps in one layer. Do not pin typing_extensions or install jupyter here —
 # they install standalone `packaging` and break pip's vendored copy in kit Python.
-# WebRTC stack required by scripts/utils/webrtc_cam.py (imported at module load by runners).
+# WebRTC stack (aiortc/av/aiohttp) — loaded lazily by runners when --webrtc_cam is set.
 RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --no-build-isolation --prefer-binary \
   pytest \
   onnxruntime \
@@ -260,6 +271,12 @@ RUN echo "alias pytest='/isaac-sim/python.sh -m pytest'" >> /etc/bash.bashrc
 # Debugging
 RUN pip3 install debugpy --break-system-packages
 RUN echo "alias debugpy='python -Xfrozen_modules=off -m debugpy --listen localhost:5678 --wait-for-client'" >> /etc/bash.bashrc
+
+# Strip pip warp-lang after all pip installs — PyPI warp shadows omni.warp-1.8.2 and breaks Kit.
+# pip uninstall fails on kit Python (cross-device link / .pyc permissions) — remove directories as root.
+RUN KIT_SITE="/isaac-sim/kit/python/lib/python3.11/site-packages" && \
+    chmod -R u+w "${KIT_SITE}/warp" "${KIT_SITE}/~arp" 2>/dev/null || true && \
+    rm -rf "${KIT_SITE}/warp" "${KIT_SITE}"/warp_lang-*.dist-info "${KIT_SITE}"/~arp* 2>/dev/null || true
 
 # Prompt
 RUN echo "PS1='[RHEO] \[\e[0;32m\]~\u \[\e[0;34m\]\w\[\e[0m\] \$ '" >> /etc/bash.bashrc

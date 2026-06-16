@@ -22,7 +22,6 @@ import tqdm
 from isaaclab_arena.cli.isaaclab_arena_cli import get_isaaclab_arena_cli_parser
 from isaaclab_arena.utils.isaaclab_utils.simulation_app import SimulationAppContext
 from isaaclab_arena_environments.cli import add_example_environments_cli_args, get_arena_builder_from_cli
-from scripts.utils.webrtc_cam import setup_webrtc_cam
 from simulation.examples.webrtc_runner_cli import add_webrtc_cli_args
 from simulation.register_and_patch import register_workflow_assets, register_workflow_cli
 
@@ -44,9 +43,11 @@ def main():
     add_example_environments_cli_args(args_parser)
     args_cli = args_parser.parse_args()
 
-    # Start the simulation app
+    if getattr(args_cli, "enable_pinocchio", False):
+        import pinocchio  # noqa: F401
+
+    # Start the simulation app (omni.* modules require SimulationApp before isaaclab imports).
     with SimulationAppContext(args_cli):
-        # Register Workflow-specific assets
         register_workflow_assets()
 
         # Build environment configuration
@@ -83,8 +84,13 @@ def main():
         env = gym.make(env_name, cfg=env_cfg).unwrapped
         print(f"[INFO] Environment created: {env_name}")
 
-        # Optional WebRTC livestream of the room camera.
-        _maybe_publish_webrtc = setup_webrtc_cam(args_cli, camera_name="room_camera")
+        # Optional WebRTC livestream (lazy import: aiortc/asyncio must not load during Kit startup).
+        if getattr(args_cli, "webrtc_cam", False):
+            from scripts.utils.webrtc_cam import setup_webrtc_cam
+
+            _maybe_publish_webrtc = setup_webrtc_cam(args_cli, camera_name="room_camera")
+        else:
+            _maybe_publish_webrtc = lambda _obs: None
 
         if args_cli.seed is not None:
             env.seed(args_cli.seed)
