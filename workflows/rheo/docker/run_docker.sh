@@ -257,6 +257,15 @@ else
         fi
     fi
 
+    # RTX 50-series (Blackwell): forwarding host DISPLAY can destabilize headless RTX/Vulkan init.
+    if [ "${RHEO_DISABLE_BLACKWELL_RENDER_PATCH:-}" != "1" ] && [ "${RHEO_KEEP_DISPLAY:-}" != "1" ]; then
+        if [ -n "${DISPLAY:-}" ] && [ "${HEADLESS:-1}" != "0" ]; then
+            echo "Note: Unsetting DISPLAY for container (RTX 50-series headless stability)."
+            echo "      Use HEADLESS=0 RHEO_KEEP_DISPLAY=1 for Isaac Sim GUI."
+            unset DISPLAY
+        fi
+    fi
+
     # X11 (optional). Do not abort if xhost fails (SSH/headless); unset DISPLAY so Isaac Sim
     # runs headless instead of failing on an invalid display.
     if [ -n "${DISPLAY:-}" ]; then

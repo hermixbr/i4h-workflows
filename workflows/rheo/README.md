@@ -447,6 +447,7 @@ After fine-tuning or reinforcement learning, you can evaluate the success rate o
   - On the host, run `xhost +local:docker` and confirm `echo $DISPLAY` is set (`:0` or `:1`).
   - The GUI may take several minutes to appear on first scene load; wait for `[INFO] Environment created:` in the logs.
   - If the process segfaults during RTX startup (common on some RTX 50-series GPUs), use the WebRTC path in [Viewing Isaac Sim](#-viewing-isaac-sim) instead.
+  - Rheo auto-injects conservative Kit/render settings for Blackwell (RTX 50-series) and unsets `DISPLAY` in Docker unless `HEADLESS=0` and `RHEO_KEEP_DISPLAY=1`. Opt out with `RHEO_DISABLE_BLACKWELL_RENDER_PATCH=1`. Clear shader cache: `rm -rf ~/.cache/ov ~/.nv/ComputeCache`.
 
 - **Resetting the VLM Agent**:
   - After changing the agent configuration or a system restart, you need to reset the UI container to reload the agent configurations. Otherwise, it could lead to unexpected behavior by using the default agent in the VLM-Surgical-Agent-Framework repository.

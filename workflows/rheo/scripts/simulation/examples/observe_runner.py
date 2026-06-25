@@ -22,6 +22,8 @@ import tqdm
 from isaaclab_arena.cli.isaaclab_arena_cli import get_isaaclab_arena_cli_parser
 from isaaclab_arena.utils.isaaclab_utils.simulation_app import SimulationAppContext
 from isaaclab_arena_environments.cli import add_example_environments_cli_args, get_arena_builder_from_cli
+from simulation.examples.utils import create_video_writer_if_requested, maybe_record_video_frame
+from simulation.examples.video_runner_cli import add_video_cli_args
 from simulation.examples.webrtc_runner_cli import add_webrtc_cli_args
 from simulation.register_and_patch import register_workflow_assets, register_workflow_cli
 
@@ -39,6 +41,7 @@ def main():
     )
     # Add WebRTC streaming arguments
     add_webrtc_cli_args(args_parser)
+    add_video_cli_args(args_parser)
     # Add environment-specific CLI arguments (task, object, embodiment, etc.)
     add_example_environments_cli_args(args_parser)
     args_cli = args_parser.parse_args()
@@ -84,6 +87,10 @@ def main():
         env = gym.make(env_name, cfg=env_cfg).unwrapped
         print(f"[INFO] Environment created: {env_name}")
 
+        video_writer, video_base_name = create_video_writer_if_requested(args_cli, run_name=env_name)
+        if video_writer is not None:
+            print(f"[INFO] Video recording enabled -> {args_cli.video_dir}")
+
         # Optional WebRTC livestream (lazy import: aiortc/asyncio must not load during Kit startup).
         if getattr(args_cli, "webrtc_cam", False):
             from scripts.utils.webrtc_cam import setup_webrtc_cam
@@ -101,6 +108,12 @@ def main():
 
         obs, _ = env.reset()
         _maybe_publish_webrtc(obs)
+        maybe_record_video_frame(
+            video_writer,
+            env,
+            env_index=int(getattr(args_cli, "video_env_id", 0) or 0),
+            overlay_text=f"observe  step 0/{args_cli.num_steps}",
+        )
 
         # Get action space dimensions
         action_dim = env.action_space.shape[-1] if len(env.action_space.shape) > 1 else env.action_space.shape[0]
@@ -121,16 +134,25 @@ def main():
 
         try:
             # Run simulation with initial action to maintain posture
-            for _ in tqdm.tqdm(range(args_cli.num_steps), desc="Running simulation"):
+            for step_idx in tqdm.tqdm(range(args_cli.num_steps), desc="Running simulation"):
                 with torch.inference_mode():
                     # Step environment with initial action to maintain initial posture
                     obs, _, _, _, _ = env.step(initial_action)
                     _maybe_publish_webrtc(obs)
+                    maybe_record_video_frame(
+                        video_writer,
+                        env,
+                        env_index=int(getattr(args_cli, "video_env_id", 0) or 0),
+                        overlay_text=f"observe  step {step_idx + 1}/{args_cli.num_steps}",
+                    )
 
         except KeyboardInterrupt:
             print("\n[INFO] Simulation interrupted by user")
 
         print("\n[INFO] Simulation complete")
+        if video_writer is not None:
+            video_writer.close()
+            print(f"[INFO] Video saved to: {args_cli.video_dir}/{video_base_name}_*.mp4")
         env.close()
 
 

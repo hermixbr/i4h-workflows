@@ -16,6 +16,7 @@
 """Helpers to register Workflow-specific assets and environments."""
 
 from isaaclab_arena_environments.cli import ExampleEnvironments
+from scripts.utils.blackwell_render import ensure_blackwell_safe_kit_args
 from simulation.environments.g1_locomanip_observe_object_environment import ObserveObjectEnvironment
 from simulation.environments.g1_locomanip_push_cart_environment import G1LocomanipPushCartEnvironment
 from simulation.environments.g1_locomanip_tray_pick_and_place_environment import G1LocomanipTrayPickAndPlaceEnvironment
@@ -23,6 +24,7 @@ from simulation.environments.g1_locomanip_tray_pick_and_place_environment import
 
 def register_workflow_cli():
     """Register into the global registries for CLI before the simulation app is started."""
+    ensure_blackwell_safe_kit_args()
     if G1LocomanipTrayPickAndPlaceEnvironment.name not in ExampleEnvironments:
         ExampleEnvironments.update(
             {
