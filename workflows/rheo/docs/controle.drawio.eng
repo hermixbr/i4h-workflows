@@ -1,0 +1,81 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.5 Chrome/138.0.7204.251 Electron/37.6.1 Safari/537.36" version="28.2.5">
+  <diagram name="Rheo Robot Control Flow" id="W_6I6GJ-zIgZVcbMgakN">
+    <mxGraphModel dx="1193" dy="737" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1654" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="xMPiXxU-w79jIDbD8g35-110" value="Simplified Flow - Rheo Robot Control" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=20;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="220" y="50" width="700" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-111" value="User input&#xa;Voice or text" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="430" y="120" width="240" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-112" value="If voice:&#xa;Whisper converts audio to text" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="430" y="230" width="240" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-113" value="Operating Room Selector&#xa;chooses the right agent" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="425" y="350" width="250" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-114" value="Question / analysis&#xa;ChatAgent responds&#xa;Does NOT move the robot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="90" y="540" width="240" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-115" value="Action command&#xa;UserCommandAgent prepares&#xa;a pending action" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="430" y="540" width="240" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-116" value="Confirmation&#xa;user says: start / yes / go" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="770" y="540" width="240" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-117" value="RobotControlAgent&#xa;POST :8081/trigger" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="430" y="690" width="240" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-118" value="triggered_policy_runner&#xa;receives trigger" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="430" y="810" width="240" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-119" value="GR00T Policy&#xa;robot executes in Isaac Sim" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="430" y="930" width="240" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-120" value="Manual shortcut&#xa;curl / trigger_menu.sh&#xa;skips the agents" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1" vertex="1" parent="1">
+          <mxGeometry x="90" y="685" width="240" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-121" value="Current limitation:&#xa;vLLM + Isaac Sim + GR00T&#xa;do not fit together in 32 GB VRAM.&#xa;That is why curl/menu is the reliable path." style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#ffcccc;strokeColor=#b85450;align=left" vertex="1" parent="1">
+          <mxGeometry x="770" y="700" width="280" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-122" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="xMPiXxU-w79jIDbD8g35-111" target="xMPiXxU-w79jIDbD8g35-112">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-123" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="xMPiXxU-w79jIDbD8g35-112" target="xMPiXxU-w79jIDbD8g35-113">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-124" value="question" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="xMPiXxU-w79jIDbD8g35-113" target="xMPiXxU-w79jIDbD8g35-114">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-125" value="action" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="xMPiXxU-w79jIDbD8g35-113" target="xMPiXxU-w79jIDbD8g35-115">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-126" value="start / yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="xMPiXxU-w79jIDbD8g35-113" target="xMPiXxU-w79jIDbD8g35-116">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-127" value="pending action" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="xMPiXxU-w79jIDbD8g35-115" target="xMPiXxU-w79jIDbD8g35-116">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-128" value="confirmed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="xMPiXxU-w79jIDbD8g35-116" target="xMPiXxU-w79jIDbD8g35-117">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="890" y="650" />
+              <mxPoint x="550" y="650" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-129" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="xMPiXxU-w79jIDbD8g35-117" target="xMPiXxU-w79jIDbD8g35-118">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-130" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="xMPiXxU-w79jIDbD8g35-118" target="xMPiXxU-w79jIDbD8g35-119">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xMPiXxU-w79jIDbD8g35-131" value="direct POST" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="xMPiXxU-w79jIDbD8g35-120" target="xMPiXxU-w79jIDbD8g35-117">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
