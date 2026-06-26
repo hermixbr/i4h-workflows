@@ -94,7 +94,8 @@ RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --no-build-isolation --prefer
     starlette==0.49.1 \
     "pyglet<2"
 RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --no-build-isolation --prefer-binary "onnx>=1.18.0"
-RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --no-build-isolation --prefer-binary warp-lang
+# RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --no-build-isolation --prefer-binary warp-lang
+RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --no-build-isolation --prefer-binary warp-lang==1.8.1
 RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --no-build-isolation --prefer-binary einops
 # isaaclab_mimic runtime deps (install editable packages with --no-deps below)
 RUN ${ISAACLAB_PATH}/isaaclab.sh -p -m pip install --no-build-isolation --prefer-binary \
